@@ -2,10 +2,9 @@
 
 ## Explore additional metrics that can serve as quality metrics for the search process. 
 
-Latency:
+**Latency**:
 
-We calculate the latency for each input-batch, then accumulate all latencies to take the average for each search option.
-
+For each search option, we calculate the latency for each input-batch, then accumulate all latencies to take the average.
 <pre>
 for i, config in enumerate(search_spaces):
     mg, _ = quantize_transform_pass(mg, config)
@@ -21,3 +20,4 @@ for i, config in enumerate(search_spaces):
     latency_avg = sum(latencies) / len(latencies) 
 </pre>
 
+**model size**:
