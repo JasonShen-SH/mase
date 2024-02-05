@@ -42,7 +42,7 @@ def model_storage_size(model, weight_bit_width, bias_bit_width, data_bit_width):
         elif param.requires_grad and 'bias' in name:
             bits = param.numel() * bias_bit_width
             total_bits += bits
-    total_bits += data_bit_width*(1*16+1) # mean and variance
+    total_bits += data_bit_width*(1*16+1) # mean and variance of batchnorm
     total_bytes = total_bits / 8
     return total_bytes
 
@@ -51,3 +51,36 @@ for i, config in enumerate(search_spaces):
     size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)
     ''''''
 </pre>
+
+
+**Bit-wise operations**:
+
+For each search option, we compute the bitwise operations count for the linear module。
+
+We employ the identical methodology as outlined in the optional task of Lab2.
+
+<pre>
+def bit_wise_op(model, input_res, data_width, weight_width, bias_width, batch_size):
+    total_bitwise_ops = 0
+    for name, module in model.named_modules():
+        if isinstance(module, LinearInteger):
+            bitwise_ops = calculate_bitwise_ops_for_linear(module, input_res, data_width, weight_width, bias_width, batch_size)
+            total_bitwise_ops += bitwise_ops
+    return total_bitwise_ops
+def calculate_bitwise_ops_for_linear(module, input_res, data_bit_width, weight_bit_width, bias_bit_width, batch_size):
+    in_features = module.in_features
+    out_features = module.out_features
+    bitwise_ops_per_multiplication = data_bit_width * weight_bit_width
+    bitwise_ops_per_addition = data_bit_width * weight_bit_width
+    bitwise_ops_per_output_feature = in_features * bitwise_ops_per_multiplication + (in_features - 1) * bitwise_ops_per_addition
+    if module.bias is not None:
+        bitwise_ops_per_output_feature += bias_bit_width
+    total_bitwise_ops = out_features * bitwise_ops_per_output_feature
+    return total_bitwise_ops*batch_size
+
+for i, config in enumerate(search_spaces):
+    # definition of weight & bias & data width
+    bit_op = bit_wise_op(mg.model, (16,), data_bit_width, weight_bit_width, bias_bit_width)
+    ''''''
+</pre>
+
