@@ -20,4 +20,34 @@ for i, config in enumerate(search_spaces):
     latency_avg = sum(latencies) / len(latencies) 
 </pre>
 
+
 **model size**:
+
+For each search option, we calculate the total storage size of the model by iterating through the space occupied by the weights of each layer.
+<pre>
+The memory footprint of each layer is determined by the following attributes:
+Linear: weight, bias
+Batchnorm: weight(γ), bias(β), mean, variance
+ReLU: None
+</pre>
+
+The subsequent script is designed for assessing the memory consumption attributed to the model
+<pre>
+def model_storage_size(model, weight_bit_width, bias_bit_width, data_bit_width):
+    total_bits = 0 
+    for name, param in model.named_parameters():
+        if param.requires_grad and 'weight' in name:
+            bits = param.numel() * weight_bit_width
+            total_bits += bits
+        elif param.requires_grad and 'bias' in name:
+            bits = param.numel() * bias_bit_width
+            total_bits += bits
+    total_bits += data_bit_width*(1*16+1) # mean and variance
+    total_bytes = total_bits / 8
+    return total_bytes
+
+for i, config in enumerate(search_spaces):
+    # definition of weight & bias & data width
+    size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)
+    ''''''
+</pre>
