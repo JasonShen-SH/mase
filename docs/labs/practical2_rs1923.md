@@ -88,6 +88,8 @@ for i, config in enumerate(search_spaces):
 
 ## 2. Implement some of these additional metrics and attempt to combine them with the accuracy or loss quality metric
 
+Note that to leverage the pretrained model (as relying solely on randomly initialized parameters across various models during the search process would make metrics like accuracy become meaningless), it is imperative to preload the "best.ckpt" file.
+
 <pre>
 # Essential Code Segment (Extraneous elements omitted)
 for i, config in enumerate(search_spaces):
@@ -118,6 +120,10 @@ for i, config in enumerate(search_spaces):
 </pre>
 
 <img src="../../imgs/3_2.png" width=800>
+
+It can be observed that as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss. However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
+
+Among various precision types, weight bit-width emerged as the most critical factor, succeeded by data bit-width, with bias bit-width ranking as the least influential.
 
 
 
