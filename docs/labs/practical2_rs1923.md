@@ -137,7 +137,7 @@ The figure above depicts the distinct metrics observed for varying quantization 
 
 Accuracy and loss actually serve as the same quanlity metric. In fact, accuracy and loss are inversely proportional, implying that as the model's prediction accuracy increases, the prediction loss correspondingly decreases. This relationship is evident from the following formula for accuracy:
 
-<img src="../../imgs/3_2_1.png" width=600>
+<img src="../../imgs/3_2_1.png" width=200>
 
 This formula quantifies the number of incorrect predictions within a batch. When we consider its negation, it also serves as a form of loss.
 
@@ -169,7 +169,7 @@ Then we execute the command:
 
 And we get:
 
-<img src="../../imgs/3_3.png" width=800>
+<img src="../../imgs/3_3.png" width=1000>
 
 
 
