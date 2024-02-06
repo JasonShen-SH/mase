@@ -121,10 +121,16 @@ for i, config in enumerate(search_spaces):
 
 <img src="../../imgs/3_2.png" width=800>
 
-It can be observed that as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss. However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
+It can be observed that, generally speaking, as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss. However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
 
-Among various precision types, weight bit-width emerged as the most critical factor, succeeded by data bit-width, with bias bit-width ranking as the least influential.
+However, we also have some intersting findings: **Somtimes, when diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
+<img src="../../imgs/3_2_1.png" width=600>
+In PTQ, this is probably caused by the following reasons:
+1) Regularization Effect: Reduced precision can act as a form of regularization. The decrease in the quantization precision of weights results in a diminished model capacity, which can alleviate overfitting (particularly in scenarios with limited training data).
 
+2) Noise Robustness (kind of like GAN): The noise introduced by reducing precision can bolster the model's resilience to minor variations or noise in the input data, potentially resulting in unexpected improvements in the model's performance.
+
+Accuracy and loss actually serve as the same quanlity metric, as 
 
 
 ## 3. Implement the brute-force search as an additional search method within the system, this would be a new search strategy in MASE.
@@ -139,14 +145,21 @@ def sampler_map(self, name):
     case "brute-force":
         sampler = optuna.samplers.BruteForceSampler()
     return sampler
-</pre>
-
-<pre>
 # jsc_toy_by_type.toml (actually this name should be changed to jsc_tiny_by_type.toml as it uses the JSC-Tiny model)
 [search.strategy.setup]
 ''''''
 sampler = "brute-force"
 </pre>
+
+Note that we also need to rewrite the search space in .toml file.
+
+Then we execute the command:
+<pre>
+!./ch search --config configs/examples/jsc_toy_by_type.toml --load /mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-tiny_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt
+</pre>
+
+We've found 
+<img src="../../imgs/3_3.png" width=800>
 
 
 
