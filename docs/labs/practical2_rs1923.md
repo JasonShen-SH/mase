@@ -129,6 +129,8 @@ However, we also have some intersting findings:
 
 <img src="../../imgs/3_2_1.png" width=800>
 
+We could see that model4 has a much better performance than model5. However, model4 haves a weight precision of only 8 bits, whereas model5 utilizes 16 bits for weight precision.
+
 In PTQ, this is probably caused by the following reasons:
 1) Regularization Effect: Reduced precision can act as a form of regularization. The decrease in the quantization precision of weights results in a diminished model capacity, which can alleviate overfitting (particularly in scenarios with limited training data).
 
