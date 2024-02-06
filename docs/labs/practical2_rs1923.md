@@ -117,7 +117,7 @@ for i, config in enumerate(search_spaces):
     })   
 </pre>
 
-<img src="../../imgs/3_2.png" width=500>
+<img src="../../imgs/3_2.png" width=800>
 
 
 
