@@ -1,8 +1,8 @@
 # Lab 3
 
-## Explore additional metrics that can serve as quality metrics for the search process. 
+## 1. Explore additional metrics that can serve as quality metrics for the search process. 
 
-**Latency**:
+**Latency**: (Unit: ms, we have multiplied by 1000)
 
 For each search option, we calculate the latency for each input-batch, then accumulate all latencies to take the average.
 <pre>
@@ -15,13 +15,13 @@ for i, config in enumerate(search_spaces):
         preds = mg.model(xs)
         end_time = time.time() # end time
         latency = end_time - start_time # latency
-        latencies.append(latency)
+        latencies.append(latency*1000)
         ''''''
     latency_avg = sum(latencies) / len(latencies) 
 </pre>
 
 
-**model size**:
+**model size**: (Unit: Byte)
 
 For each search option, we calculate the total storage size of the model by iterating through the space occupied by the weights of each layer.
 <pre>
@@ -53,7 +53,7 @@ for i, config in enumerate(search_spaces):
 </pre>
 
 
-**Bit-wise operations**:
+**Bit-wise operations**: (Unit: number)
 
 For each search option, we compute the bitwise operations count for the linear module。
 
@@ -83,4 +83,43 @@ for i, config in enumerate(search_spaces):
     bit_op = bit_wise_op(mg.model, (16,), data_bit_width, weight_bit_width, bias_bit_width)
     ''''''
 </pre>
+
+## 2. Implement some of these additional metrics and attempt to combine them with the accuracy or loss quality metric
+
+<pre>
+# Essential Code Segment (Extraneous elements omitted)
+for i, config in enumerate(search_spaces):
+    linear_config = config['linear']['config']; data_width = linear_config['data_in_width']; data_frac_width = linear_config['data_in_frac_width']; weight_width = linear_config['weight_width']; weight_frac_width = linear_config['weight_frac_width']; bias_width = linear_config['bias_width']; bias_frac_width = linear_config['bias_frac_width']
+    mg, _ = quantize_transform_pass(mg, config)
+    data_bit_width = config['linear']['config']['data_in_width']; weight_bit_width = config['linear']['config']['weight_width']; bias_bit_width = config['linear']['config']['bias_width']
+
+    size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)  # model size after it has been quantized
+    bit_op = bit_wise_op(mg.model, (16,), weight_bit_width, bias_bit_width, data_bit_width, batch_size)
+
+    acc_avg, loss_avg = 0, 0;  accs, losses, latencies = [], [], []
+
+    for inputs in data_module.train_dataloader():
+        xs, ys = inputs
+        start_time = time.time()
+        preds = mg.model(xs)
+        end_time = time.time()
+        latency = end_time - start_time
+        latencies.append(latency)
+
+        acc = metric(preds, ys); accs.append(acc)
+        loss = torch.nn.functional.cross_entropy(preds, ys); losses.append(loss)
+
+    acc_avg = sum(accs) / len(accs)
+    loss_avg = sum(losses) / len(losses)
+    latency_avg = sum(latencies) / len(latencies) 
+
+    # for this particular element in search space
+    recorded_metrics.append({
+        ......
+    })   
+</pre>
+
+## 3. Implement the brute-force search as an additional search method within the system, this would be a new search strategy in MASE.
+
+We could ac
 
