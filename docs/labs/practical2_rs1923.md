@@ -117,6 +117,8 @@ for i, config in enumerate(search_spaces):
     })   
 </pre>
 
+<img src="../../imgs/3_2.png" width=500>
+
 
 
 ## 3. Implement the brute-force search as an additional search method within the system, this would be a new search strategy in MASE.
