@@ -143,9 +143,10 @@ This formula quantifies the number of incorrect predictions within a batch. When
 
 ## 3. Implement the brute-force search as an additional search method within the system, this would be a new search strategy in MASE.
 
-Currently within the system, we facilitate TPE sampler (a kind of Bayesian optimization method) of optuna.
+Currently, the system employs the TPE sampler from Optuna, which is a Bayesian optimization method.
 
-We could also choose the **BruteForceSampler** of optuna for optimizing hyperparameters.
+Alternatively, the BruteForceSampler from Optuna can also be utilized for hyperparameter optimization.
+
 <pre>
 # optuna.py within search strategies
 def sampler_map(self, name):
@@ -159,14 +160,14 @@ def sampler_map(self, name):
 sampler = "brute-force"
 </pre>
 
-Note that we also need to rewrite the search space in .toml file.
+Note that we also need to rewrite the new search space in .toml file.
 
 Then we execute the command:
 <pre>
 !./ch search --config configs/examples/jsc_toy_by_type.toml --load /mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-tiny_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt
 </pre>
 
-We've found 
+And we get:
 
 <img src="../../imgs/3_3.png" width=800>
 
