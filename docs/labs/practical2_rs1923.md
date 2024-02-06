@@ -127,15 +127,19 @@ for i, config in enumerate(search_spaces):
 
 <img src="../../imgs/3_2.png" width=1000>
 
-Distinct metrics are observed for varying quantization configurations. We could derive two conclusions:
+The figure above depicts the distinct metrics observed for varying quantization configurations, from which we could derive two main conclusions:
 
 (Remember for the original model without quantisation, the validation accuracy is 51.30%).
 
-1) It is obvious that the PTQ(Post-Training Quantisation) doesn't lower the validation accuracy. However, it significantly reduces the amount of space needed for storing data, weights, and bias. Therefore, the quantisation is worth doing.
+1）Evidently, Post-Training Quantization (PTQ) does not compromise validation accuracy while markedly diminishing the storage requirements for data, weights, and biases. Hence, quantization proves to be beneficial.
+
 2) Generally speaking, as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss (though not obvious in our case). However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
 
-Accuracy and loss actually serve as the same quanlity metric, as 
+Accuracy and loss actually serve as the same quanlity metric. In fact, accuracy and loss are inversely proportional, implying that as the model's prediction accuracy increases, the prediction loss correspondingly decreases. This relationship is evident from the following formula for accuracy:
 
+<img src="../../imgs/3_2_1.png" width=600>
+
+This formula quantifies the number of incorrect predictions within a batch. When we consider its negation, it also serves as a form of loss.
 
 ## 3. Implement the brute-force search as an additional search method within the system, this would be a new search strategy in MASE.
 
