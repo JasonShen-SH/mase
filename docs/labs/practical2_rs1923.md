@@ -123,7 +123,9 @@ for i, config in enumerate(search_spaces):
 
 It can be observed that, generally speaking, as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss. However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
 
-However, we also have some intersting findings: **Somtimes, when diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
+However, we also have some intersting findings:
+
+**Somtimes, when diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
 
 <img src="../../imgs/3_2_1.png" width=600>
 
