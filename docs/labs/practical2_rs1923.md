@@ -123,5 +123,26 @@ for i, config in enumerate(search_spaces):
 
 ## 3. Implement the brute-force search as an additional search method within the system, this would be a new search strategy in MASE.
 
-We could ac
+Currently within the system, we facilitate TPE sampler (a kind of Bayesian optimization method) of optuna.
+
+We could also choose the **BruteForceSampler** of optuna for optimizing hyperparameters.
+<pre>
+# optuna.py within search strategies
+def sampler_map(self, name):
+    ''''''
+    case "brute-force":
+        sampler = optuna.samplers.BruteForceSampler()
+    return sampler
+</pre>
+
+<pre>
+# jsc_toy_by_type.toml (actually this name should be changed to jsc_tiny_by_type.toml as it uses the JSC-Tiny model)
+[search.strategy.setup]
+n_jobs = 1
+n_trials = 20
+timeout = 20000
+sampler = "brute-force"
+</pre>
+
+
 
