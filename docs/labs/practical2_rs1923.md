@@ -138,11 +138,10 @@ def sampler_map(self, name):
 <pre>
 # jsc_toy_by_type.toml (actually this name should be changed to jsc_tiny_by_type.toml as it uses the JSC-Tiny model)
 [search.strategy.setup]
-n_jobs = 1
-n_trials = 20
-timeout = 20000
+''''''
 sampler = "brute-force"
 </pre>
+
 
 
 
