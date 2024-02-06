@@ -22,6 +22,7 @@ for i, config in enumerate(search_spaces):
 
 
 **model size**: (Unit: Byte)
+It is presupposed that the model, whose size is to be calculated, has already undergone quantization, each time with different search option.
 
 For each search option, we calculate the total storage size of the model by iterating through the space occupied by the weights of each layer.
 <pre>
