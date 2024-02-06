@@ -125,25 +125,14 @@ for i, config in enumerate(search_spaces):
     })   
 </pre>
 
-<img src="../../imgs/3_2.png" width=800>
-We could see different metrics for different configuration of quantisation.
+<img src="../../imgs/3_2.png" width=1000>
 
+Distinct metrics are observed for varying quantization configurations. We could derive two conclusions:
 
+(Remember for the original model without quantisation, the validation accuracy is 51.30%).
 
-It can be observed that, generally speaking, as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss. However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
-
-However, we also have some intersting findings:
-
-**Somtimes, diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
-
-<img src="../../imgs/3_2_1.png" width=800>
-
-We could see that model5 has a much better performance than model4. However, model5 haves a weight precision of only 8 bits, whereas model4 utilizes 16 bits for weight precision.
-
-In PTQ, this is probably caused by the following reasons:
-1) Regularization Effect: Reduced precision can act as a form of regularization. The decrease in the quantization precision of weights results in a diminished model capacity, which can alleviate overfitting (particularly in scenarios with limited training data).
-
-2) Noise Robustness (kind of like GAN): The noise introduced by reducing precision can bolster the model's resilience to minor variations or noise in the input data, potentially resulting in unexpected improvements in the model's performance.
+1) It is obvious that the PTQ(Post-Training Quantisation) doesn't lower the validation accuracy. However, it significantly reduces the amount of space needed for storing data, weights, and bias. Therefore, the quantisation is worth doing.
+2) Generally speaking, as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss (though not obvious in our case). However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
 
 Accuracy and loss actually serve as the same quanlity metric, as 
 
