@@ -21,7 +21,7 @@ for i, config in enumerate(search_spaces):
 </pre>
 
 
-**model size**: (Unit: Byte)
+**Model size**: (Unit: Byte)
 
 It is presupposed that the model, whose size is to be calculated, has already undergone quantization, each time with different search option.
 
@@ -89,7 +89,13 @@ for i, config in enumerate(search_spaces):
 ## 2. Implement some of these additional metrics and attempt to combine them with the accuracy or loss quality metric
 
 Note that to leverage the pretrained model (as relying solely on randomly initialized parameters across various models during the search process would make metrics like accuracy become meaningless), it is imperative to preload the "best.ckpt" file.
- 
+<pre>
+CHECKPOINT_PATH = "/mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-tiny_classification_jsc_2024-02-05/software/training_ckpts/best.ckpt"
+# model definition
+model = load_model(load_name=CHECKPOINT_PATH, load_type="pl", model=model)
+</pre>
+
+Subsequently, inference is performed for each configuration within the search space.
 <pre>
 # Essential Code Segment (Extraneous elements omitted)
 for i, config in enumerate(search_spaces):
@@ -120,6 +126,9 @@ for i, config in enumerate(search_spaces):
 </pre>
 
 <img src="../../imgs/3_2.png" width=800>
+We could see different metrics for different configuration of quantisation.
+
+
 
 It can be observed that, generally speaking, as the quantization precision of data, weights, and biases increases (i.e., higher retained precision), the performance of the model improves, as can be shown by the increased accuracy and reduced loss. However, this also impacts other metrics to a certain extent, such as a noticeable increase in the latency required to execute a single batch, an augmentation in model size, and a rise in the number of bitwise operations.
 
