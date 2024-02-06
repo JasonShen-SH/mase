@@ -89,10 +89,6 @@ for i, config in enumerate(search_spaces):
 <pre>
 # Essential Code Segment (Extraneous elements omitted)
 for i, config in enumerate(search_spaces):
-    linear_config = config['linear']['config']; data_width = linear_config['data_in_width']; data_frac_width = linear_config['data_in_frac_width']; weight_width = linear_config['weight_width']; weight_frac_width = linear_config['weight_frac_width']; bias_width = linear_config['bias_width']; bias_frac_width = linear_config['bias_frac_width']
-    mg, _ = quantize_transform_pass(mg, config)
-    data_bit_width = config['linear']['config']['data_in_width']; weight_bit_width = config['linear']['config']['weight_width']; bias_bit_width = config['linear']['config']['bias_width']
-
     size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)  # model size after it has been quantized
     bit_op = bit_wise_op(mg.model, (16,), weight_bit_width, bias_bit_width, data_bit_width, batch_size)
 
