@@ -127,7 +127,7 @@ However, we also have some intersting findings:
 
 **Somtimes, diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
 
-<img src="../../imgs/3_2_1.png" width=600>
+<img src="../../imgs/3_2_1.png" width=800>
 
 In PTQ, this is probably caused by the following reasons:
 1) Regularization Effect: Reduced precision can act as a form of regularization. The decrease in the quantization precision of weights results in a diminished model capacity, which can alleviate overfitting (particularly in scenarios with limited training data).
