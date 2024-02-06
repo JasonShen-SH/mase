@@ -125,7 +125,7 @@ It can be observed that, generally speaking, as the quantization precision of da
 
 However, we also have some intersting findings:
 
-**Somtimes, when diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
+**Somtimes, diminishing the precision of weight quantization can potentially enhance the network's generalization capabilities to a certain extent**:
 
 <img src="../../imgs/3_2_1.png" width=600>
 
