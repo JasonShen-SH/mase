@@ -89,7 +89,7 @@ for i, config in enumerate(search_spaces):
 ## 2. Implement some of these additional metrics and attempt to combine them with the accuracy or loss quality metric
 
 Note that to leverage the pretrained model (as relying solely on randomly initialized parameters across various models during the search process would make metrics like accuracy become meaningless), it is imperative to preload the "best.ckpt" file.
-
+ 
 <pre>
 # Essential Code Segment (Extraneous elements omitted)
 for i, config in enumerate(search_spaces):
