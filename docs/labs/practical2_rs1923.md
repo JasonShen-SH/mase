@@ -171,6 +171,10 @@ And we get:
 
 <img src="../../imgs/3_3.png" width=1000>
 
+The trials with the highest accuracy range from 47% to 48%, which is close to the 51.3% accuracy of the original model, indicating that the model significantly reduces storage space while largely maintaining accuracy.
+
+## 4. Comparison between brute-force search and TPE based search.
+
 
 
 
