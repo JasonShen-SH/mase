@@ -520,45 +520,94 @@ We find that when a=b=1 and c=d=4, the model has the highest accuracy of 32.2%, 
 
 ## 4. Integrate the search to the chop flow, so we can run it from the command line.
 
-I create my own class of <code>NetworkArchitectureSearch</code> inherited from SearchSpaceBase at <code>search.search_space.quantization.network_architecture.py</code>. Within the class, I mainly define four functions:
+I create my own class of <code>NetworkArchitectureSearch</code> inherited from SearchSpaceBase at <code>search.search_space.quantization.network_architecture.py</code>. 
 
-1) _post_init_setup(self)
+Within the class, I mainly define four functions:
+
+1. _post_init_setup(self)
 
 I inherit this from <code>base.py</code>.
 
 It primarily determines the computing resource, and initializes some variables, such as masegraph and default network config of a,b,c,d.
 
-2) rebuild_model(self, sampled_config, is_eval_mode: bool = True)
+2. rebuild_model(self, sampled_config, is_eval_mode: bool = True)
 
 Each time when the configuration updates, we need to rebuild the model with specific sampled_config.
 
 It mainly consists of three steps:
 
-Initialisation:
+2.1 Initialisation:
 <pre>
 mg = MaseGraph(self.model) # only pass the architecture but not the weights!
 mg,_ = init_metadata_analysis_pass(mg, None)
 </pre>
 
-Change the model according to the sampled_config:
+2.2 Change the model according to the sampled_config:
 <pre>
 mg, _ = self.redefine_linear_transform_pass(mg, sampled_config)
 mg, _ = self.redefine_relu_pass(mg, sampled_config)
 </pre>
 
-Load the pretrained model with that sampled_config:
+2.3 Load the pretrained model with that sampled_config:
 <pre>
 mymodel = load_model(f"mase_output/4_3/model_with_multiplier_{numbers[0]}_{numbers[1]}_{numbers[2]}_{numbers[3]}.ckpt", "pl", mg.model)
 </pre>
 
 Finally, we return the masegraph with special sampled_config.
 
-   
+3 build_search_space
+
+Build the search space for different channel multiplier input/output.
 <pre>
-# importing
-    
-    
+multiplier_options = [1,2,3,4,5]
+self.choices_flattened = {
+    "seq_blocks_2_channel_multiplier_output": multiplier_options, 
+    "seq_blocks_4_channel_multiplier_output": multiplier_options,
+}
+self.choice_lengths_flattened = {k: len(v) for k, v in self.choices_flattened.items()}
 </pre>
+
+4 flattened_indexes_to_config(self, indexes: dict[str, int]):
+
+Originally, configs are presented in such a way:
+<pre>
+"seq_blocks_2_channel_multiplier_output": 2,
+"seq_blocks_4_channel_multiplier_output": 3,
+</pre>
+
+Now we need to reshape it into the ready-to-use type:
+<pre>
+def flattened_indexes_to_config(self, indexes: dict[str, int]):
+config = {
+    "config":{
+    "by": "name",
+    "default": {"config": {"name": None}},
+    "seq_blocks_2": {"config": {"name": "output_only"}},
+    "seq_blocks_4": {"config": {"name": "both"}},
+    "seq_blocks_6": {"config": {"name": "input_only"}},
+    }
+}
+
+for key, index in indexes.items():
+    parts = key.split('_')  # To separate e.g.:'seq_blocks_2', 'channel_multiplier_output'
+    block_name = '_'.join(parts[:3]) # e.g., 'seq_blocks_2'
+    param_name = '_'.join(parts[3:]) # e.g., 'channel_multiplier_output'
+
+    value = self.choices_flattened[key][index] # value: choice of multiplier
+
+    if "output" in param_name:
+        config["config"][block_name]["config"]["channel_multiplier_output"] = value
+        # Ensure the input multiplier of the following block matches the output multiplier of current block
+        if block_name == "seq_blocks_2":
+            config["config"]["seq_blocks_4"]["config"]["channel_multiplier_input"] = value
+        elif block_name == "seq_blocks_4":
+            config["config"]["seq_blocks_6"]["config"]["channel_multiplier_input"] = value
+return config
+</pre>
+
+Note that we also need to define <code>DEFAULT_NETWORK_CONFIG</code>, as well as the previously defined functions for modifying network structure based on sampled_config, including <code>redefine_linear_transform_pass</code> and <code>redefine_relu_pass</code>.
+
+
 
 
 
