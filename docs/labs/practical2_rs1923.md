@@ -201,7 +201,6 @@ def redefine_relu_pass(graph, pass_args=None):
     i = 0
     for node in graph.fx_graph.nodes:
         i += 1
-        # if node name is not matched, it won't be tracked
         config = main_config.get(node.name, default)['config']
         name = config.get("name", None)
         if name is not None:
@@ -250,9 +249,52 @@ pass_config_relu = {
 
 ## 2. Use grid search to search for the best channel multiplier value.
 
+To achieve individual scaling of each layer rather than uniform scaling across the network, we assign distinct channel multiplier values to each adjustable channel input/output.
+
+We establish a search space defined by the set [1, 2, 3, 4, 5]. From this set, channel multipliers are selected, allowing for customized scaling of the network's layers.
+
+For each point of channel input/output modification, unique multiplier variables are designated—namely, **a, b, c, and d**. These variables individually adjust the scaling factor applied to the corresponding channel dimensions.
+
+# Essential Code Segment (Extraneous elements omitted)
+<pre>
+# within main function
+search_space = [1,2,3,4,5]
+
+# within design_pass_config_linear(a,b,c,d):
+"seq_blocks_2": {
+            "config": {
+                "name": "output_only",
+                "channel_multiplier_output": a,
+            }
+        },
+        "seq_blocks_4": {
+            "config": {
+                "name": "both",
+                "channel_multiplier_input": b,
+                "channel_multiplier_output": c,
+            }
+        },
+        "seq_blocks_6": {
+            "config": {
+                "name": "input_only",
+                "channel_multiplier_input": d,
+            }
+        },
+
+# within redefine_linear_transform_pass(graph, pass_args=None):
+if name == "output_only":
+    out_features = out_features * config["channel_multiplier_output"] 
+elif name == "both":
+    in_features = in_features * config["channel_multiplier_input"] 
+    out_features = out_features * config["channel_multiplier_output"] 
+elif name == "input_only":
+    in_features = in_features * config["channel_multiplier_input"] 
+</pre>
+
 **IMPORTANT**: Contrary to the approach taken in Lab 3, where pretrained models were loaded, the various architecture modifications proposed for this experiment remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
 
 **The training process**
+We defined 
 
 <pre>
 def init_mg():
@@ -262,9 +304,7 @@ def init_mg():
     return mg
 
 channel_multiplier = [1,2,3,4,5]
-recorded_accs = []
-metric = MulticlassAccuracy(num_classes=5)
-max_epoch=10
+max_epoch = 10
 batch_size = 512
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -289,3 +329,10 @@ for multiplier in channel_multiplier:
 
     mg = init_mg(model)
     optimizer = optim.Adam(mg.model.parameters(), lr=0.001)
+</pre>
+
+We trained these models on Colab, downloaded them, and put them under corresponding local path.
+
+Then we performed the search.
+
+
