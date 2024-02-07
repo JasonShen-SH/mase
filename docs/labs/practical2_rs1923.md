@@ -668,7 +668,7 @@ bn_transform
 pooling_transform
 
 
-search space文件的定义
+search space的定义，前一层必须小于等于后一层
 
 toml文件的定义
 
