@@ -608,7 +608,7 @@ return config
 
 Note that we also need to define <code>DEFAULT_NETWORK_CONFIG</code>, as well as the previously defined functions for modifying network structure based on sampled_config, including <code>redefine_linear_transform_pass</code> and <code>redefine_relu_pass</code>.
 
-Finally, the appropriate import statements must be implemented.
+The appropriate import statements must be implemented.
 <pre>
 # search.search_space.quantization.__init__.py
 from .network_architecture import NetworkArchitectureSearch
@@ -638,10 +638,18 @@ channel_multiplier_input = [1, 2, 3, 4, 5]
 channel_multiplier_output = [1, 2, 3, 4, 5]
 [search.search_space.seed.seq_blocks_6.config]
 channel_multiplier_input = [1, 2, 3, 4, 5]
-'''''' (search strategy)
+''''''
+[search.strategy.setup]
+n_trials = 25  # altogether 5*5=25 search options within the search space
 </pre>
 
+Finally, we execute the command:
+<pre>
+!./ch search --config configs/examples/jsc_network_search.toml --load /mnt/d/imperial/second_term/adls/new/mase/mase_output/jsc-three-linear-layers_classification_jsc_2024-01-31/software/training_ckpts/best.ckpt
+</pre>
 
+Then we found that the search option with the highest accuracy achieved an accuracy rate of 24.2%.
+<img src="../../imgs/4_4.png" width=800>
 
 
 
