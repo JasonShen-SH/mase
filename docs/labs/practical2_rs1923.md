@@ -391,7 +391,7 @@ for multiplier in channel_multiplier:
 
 Then, we can obtain the accuracy and loss of the models corresponding to each channel multiplier value.
 
-<img src="../../imgs/4_2.png" width=800>
+<img src="../../imgs/4_2.png" width=400>
 
 In our case, the best model is the one with multiplier=5, with an accuracy of 23.5%.
 
@@ -444,28 +444,33 @@ elif name == "input_only":
     in_features = in_features * config["channel_multiplier_input"] 
 </pre>
 
-We first perform training on different models. As before, we set max_epoch=10 and batch_size=512.
+We first perform training on different models. As with before, we set max_epoch=10 and batch_size=512.
 <pre>
 # Essential Code Segment
-channel_multiplier = [1,2,3,4,5]
-max_epoch = 10
+multipliers = [1, 2, 3, 4, 5]
+max_epoch=10
 batch_size = 512
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
-for multiplier in channel_multiplier:
-    # sampled_config
-    # definition for pass_config_linear
-    mg, _ = redefine_linear_transform_pass(graph=mg, pass_args={"config": pass_config_linear})
-    mg, _ = redefine_relu_pass(graph=mg, pass_args={"config": pass_config_relu})
+for a in multipliers:
+    for c in multipliers:
+        b = a ; d = c
+        pass_config_linear = design_pass_config_linear(a, b, c, d)
 
-    for epoch in range(max_epoch):
-        for inputs in data_module.train_dataloader():
-            xs, ys = inputs
-            optimizer.zero_grad()
-            preds = mg.model(xs)
-            loss = torch.nn.functional.cross_entropy(preds, ys)  
-            loss.backward()  
-            optimizer.step() 
+        mg = init_mg()
+        mg, _ = redefine_linear_transform_pass(mg, pass_args={"config": pass_config_linear})
+        mg, _ = redefine_relu_pass(mg, pass_args={"config": pass_config_relu})
+
+        for epoch in range(max_epoch):
+            for inputs in data_module.train_dataloader():
+                xs, ys = inputs
+                optimizer.zero_grad()
+                preds = mg.model(xs)
+                loss = torch.nn.functional.cross_entropy(preds, ys)  
+                loss.backward()  
+                optimizer.step() 
+
+        '''''' model save & updates for mg and optimizer
 </pre>
 
 Subsequently, we executed the search.
@@ -477,8 +482,7 @@ metric = MulticlassAccuracy(num_classes=5)
 
 for a in multipliers:
     for c in multipliers:
-        b = a
-        d = c
+        b = a ; d = c
         pass_config_linear = design_pass_config_linear(a, b, c, d)
 
         mg = init_mg()
