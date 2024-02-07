@@ -389,20 +389,27 @@ for multiplier in channel_multiplier:
     recorded_accs.append({"acc":acc_avg,"loss":loss_avg})
 </pre>
 
+Then, we can obtain the accuracy and loss of the models corresponding to each channel multiplier value.
 
-# 3. Search for Optimal Channel Multipliers with Independent Layer Scaling
+<img src="../../imgs/4_2.png" width=800>
+
+In our case, the best model is the one with multiplier=5, with an accuracy of 23.5%.
+
+## 3. Search for Optimal Channel Multipliers with Independent Layer Scaling
 
 To achieve individual scaling of each layer rather than uniform scaling across the network, we assign distinct channel multiplier values to each adjustable channel input/output.
 
-We establish a search space defined by the set [1, 2, 3, 4, 5].
-From this set, channel multipliers are selected, allowing for customized scaling of the network's layers.
+We establish a search space defined by the set [1, 2, 3, 4, 5], where channel multipliers are selected, allowing for customized scaling of the network's layers.
 
-For each point of channel input/output modification, unique multiplier variables are designated—namely, **a, b, c, and d**. These variables individually adjust the scaling factor applied to the corresponding channel dimensions.
+For each point of channel input/output modification, unique multiplier variables are designated, namely, **a, b, c, d**. These variables individually adjust the scaling factor applied to their corresponding channel dimensions.
 
-To implement, we define the search space, the new *pass_config* method, and the updated *linear_transform_pass* function.
+<img src="../../imgs/4_3.png" width=500>
 
-**Essential Code Segment**
+Please note that we will actually only iterate through values for a and c. as b=a and d=c for the consistency of channel output and the next channel's input.
+
+The following is the impelmentation for search space, the new *pass_config* method, and the updated *linear_transform_pass* function.
 <pre>
+# Essential Code Segment
 # within main function
 search_space = [1,2,3,4,5]
 
@@ -437,22 +444,17 @@ elif name == "input_only":
     in_features = in_features * config["channel_multiplier_input"] 
 </pre>
 
-
-
-**The training process**
+We first perform training on different models. As before, we set max_epoch=10 and batch_size=512.
 <pre>
 # Essential Code Segment
-
 channel_multiplier = [1,2,3,4,5]
 max_epoch = 10
 batch_size = 512
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 for multiplier in channel_multiplier:
-    mg = init_mg()
-    pass_config_linear["seq_blocks_2"]["config"]["channel_multiplier"] = multiplier
-    pass_config_linear["seq_blocks_4"]["config"]["channel_multiplier"] = multiplier
-    pass_config_linear["seq_blocks_6"]["config"]["channel_multiplier"] = multiplier
+    # sampled_config
+    # definition for pass_config_linear
     mg, _ = redefine_linear_transform_pass(graph=mg, pass_args={"config": pass_config_linear})
     mg, _ = redefine_relu_pass(graph=mg, pass_args={"config": pass_config_relu})
 
@@ -464,15 +466,42 @@ for multiplier in channel_multiplier:
             loss = torch.nn.functional.cross_entropy(preds, ys)  
             loss.backward()  
             optimizer.step() 
-
-    torch.save({ 'state_dict': mg.model.state_dict(), 'config': multiplier,}, f'model_with_multiplier_{str(multiplier)}.pth')
-
-    mg = init_mg(model)
-    optimizer = optim.Adam(mg.model.parameters(), lr=0.001)
 </pre>
 
-We trained these models on Colab, downloaded them, and put them under corresponding local path.
+Subsequently, we executed the search.
 
-Then we performed the search.
+<pre>
+multipliers = [1, 2, 3, 4, 5]
+recorded_metrics = []
+metric = MulticlassAccuracy(num_classes=5)
+
+for a in multipliers:
+    for c in multipliers:
+        b = a
+        d = c
+        pass_config_linear = design_pass_config_linear(a, b, c, d)
+
+        mg = init_mg()
+        mg, _ = redefine_linear_transform_pass(mg, pass_args={"config": pass_config_linear})
+        mg, _ = redefine_relu_pass(mg, pass_args={"config": pass_config_relu})
+
+        mymodel = load_model(f"mase_output/4_3/model_with_multiplier_{a}_{b}_{c}_{d}.ckpt", "pl", mg.model)
+
+        acc_avg, loss_avg = 0, 0
+        accs, losses = [], []
+
+        with torch.no_grad():
+            for inputs in data_module.train_dataloader():
+                xs, ys = inputs
+                preds = mg.model(xs)
+                acc = metric(preds, ys)
+                accs.append(acc.item())
+                loss = torch.nn.functional.cross_entropy(preds, ys)
+                losses.append(loss.item())
+
+        acc_avg = sum(accs) / len(accs)
+        loss_avg = sum(losses) / len(losses)
+        recorded_metrics.append({"block2_output":a, "block4_input":b, "block4_output":c, "block6_input":d, "acc(%)":acc_avg*100, "loss":loss_avg})
+</pre>
 
 
