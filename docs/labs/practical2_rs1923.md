@@ -221,8 +221,9 @@ Therefore, within our search space, we have 4×4×4×4=256 search options availa
 
 **IMPORTANT**: 
 
-The rationale behind randomizing the order of our search space (e.g., [8, 8, 4, 16] instead of [16, 8, 8, 4]) stems from our objective to evaluate the sample efficiency of two different samplers in the subsequent analysis. If we were to maintain a sequential order, the brute-force method might very likely encounter the configuration with the highest accuracy on its first iteration. However, this would not accurately reflect its overall sample efficiency. 
-By randomizing the search space, we aim to derive a more general conclusion regarding the samplers' performance in terms of sample efficiency.
+The rationale behind randomizing the order of our search space (e.g., [8, 8, 4, 16] instead of [16, 8, 8, 4]) stems from our objective to evaluate the sample efficiency of two different samplers in the subsequent analysis. If we were to maintain a sequential order, the brute-force method might very likely encounter the configuration with the highest accuracy on its first iteration.
+
+However, this would not accurately reflect its overall sample efficiency. By randomizing the search space, we aim to derive a more general conclusion regarding the samplers' performance in terms of sample efficiency.
 
 Then we execute the command:
 <pre>
