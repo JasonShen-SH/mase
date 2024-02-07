@@ -656,7 +656,7 @@ Then we found that the search option with the highest accuracy achieved an accur
 
 As the methodology and approach are fundamentally similar to the previous question, and considering the substantial volume of code, we have refrained from including specific code snippets here. FUll code are provided in the following links.
 
-We've changed the method VGG is presented, we've changed it into a sequential layers of network, so it would be easy for us to write the network config.
+We have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration.
 [cifar10_vgg](https://www.openai.com)
 
 #从以下几个方面去说：
