@@ -391,7 +391,7 @@ for multiplier in channel_multiplier:
 
 Then, we can obtain the accuracy and loss of the models corresponding to each channel multiplier value.
 
-<img src="../../imgs/4_2.png" width=400>
+<img src="../../imgs/4_2.png" width=200>
 
 In our case, the best model is the one with multiplier=5, with an accuracy of 23.5%.
 
