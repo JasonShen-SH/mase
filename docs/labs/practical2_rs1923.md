@@ -249,15 +249,51 @@ pass_config_relu = {
 
 ## 2. Use grid search to search for the best channel multiplier value.
 
+To ascertain the most effective channel multiplier, we have established a search space designed for selecting the optimal channel multiplier.
+
+<pre>
+search_space = [1,2,3,4,5]
+</pre>
+
+**Training Process**: 
+Contrary to the approach taken in Lab 3, where pretrained models were loaded, the various architecture modifications proposed for this experiment remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
+
+We set max_epoch=10 and batch_size=512 for the dataloader.
+
+<pre>
+# Essential Code Segment
+for multiplier in channel_multiplier:
+    # define pass_config_linear & pass_config_relu according to sampled_config
+    mg, _ = redefine_linear_transform_pass(graph=mg, pass_args={"config": pass_config_linear})
+    mg, _ = redefine_relu_pass(graph=mg, pass_args={"config": pass_config_relu})
+
+    for epoch in range(max_epoch): # sampled_config
+        for inputs in data_module.train_dataloader():
+            xs, ys = inputs
+            optimizer.zero_grad()
+            preds = mg.model(xs)
+            loss = torch.nn.functional.cross_entropy(preds, ys)  
+            loss.backward()  
+            optimizer.step() 
+
+    # save model, masegraph and optimizer initialize again
+</pre>
+
+Subsequently, we executed the search procedure. Given the network's simplicity—indicating manageable model size and reasonable latency—we focused exclusively on two key performance metrics: **accuracy (acc) and loss**， for evaluation.
+
+
+# 3. Search for Optimal Channel Multipliers with Independent Layer Scaling
+
 To achieve individual scaling of each layer rather than uniform scaling across the network, we assign distinct channel multiplier values to each adjustable channel input/output.
 
 We establish a search space defined by the set [1, 2, 3, 4, 5].
-
 From this set, channel multipliers are selected, allowing for customized scaling of the network's layers.
 
 For each point of channel input/output modification, unique multiplier variables are designated—namely, **a, b, c, and d**. These variables individually adjust the scaling factor applied to the corresponding channel dimensions.
 
-**Essential Code Segment (Extraneous elements omitted)**
+To implement, we define the search space, the new *pass_config* method, and the updated *linear_transform_pass* function.
+
+**Essential Code Segment**
 <pre>
 # within main function
 search_space = [1,2,3,4,5]
@@ -283,7 +319,7 @@ search_space = [1,2,3,4,5]
             }
         },
 
-# within redefine_linear_transform_pass(graph, pass_args=None):
+# within redefine_linear_transform_pass(graph, pass_args=None):  
 if name == "output_only":
     out_features = out_features * config["channel_multiplier_output"] 
 elif name == "both":
@@ -293,17 +329,11 @@ elif name == "input_only":
     in_features = in_features * config["channel_multiplier_input"] 
 </pre>
 
-**IMPORTANT**: Contrary to the approach taken in Lab 3, where pretrained models were loaded, the various architecture modifications proposed for this experiment remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
+
 
 **The training process**
-We defined 
-
 <pre>
-def init_mg():
-    model = JSC_Three_Linear_Layers()
-    mg = MaseGraph(model=model)
-    mg, _ = init_metadata_analysis_pass(mg, None)
-    return mg
+# Essential Code Segment
 
 channel_multiplier = [1,2,3,4,5]
 max_epoch = 10
