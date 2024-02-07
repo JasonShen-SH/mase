@@ -203,7 +203,21 @@ def sampler_map(self, name):
 sampler = "brute-force"
 </pre>
 
-Note that we also need to rewrite the new search space in .toml file.
+It's important to note that due to the way the search space is defined, we represent data_width, data_frac_width, weight_width, and weight_frac_width in the TOML file as follows:
+<pre>
+[search.search_space.seed.seq_blocks_2.config]  # In this case, we choose by "name" to locate the linear module.
+name = ["integer"]
+data_in_width = [16, 8, 8, 4]
+data_in_frac_width = [8, 6, 4, 2]
+weight_width = [16, 8, 8, 4]
+weight_frac_width = [8, 6, 4, 2]
+bias_width = [8]
+bias_frac_width = [4]
+''''''
+n_trials = 256 # 4*4*4*4
+</pre>
+
+Therefore, within our search space, we have 4×4×4×4=256 search options available. This configuration does not strictly align with a one-to-one correspondence to the previously defined search space requirements. However, through these 256 approaches, we can **comprehensively cover** the entire scope of the previously defined search space.
 
 Then we execute the command:
 <pre>
@@ -213,6 +227,7 @@ Then we execute the command:
 And we get:
 
 <img src="../../imgs/3_3.png" width=1000>
+
 
 The trials with the highest accuracy range from 47% to 48%, which is close to the 51.3% accuracy of the original model, indicating that the model significantly reduces storage space while largely maintaining accuracy.
 
