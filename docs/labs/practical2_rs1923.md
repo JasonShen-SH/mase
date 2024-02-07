@@ -518,4 +518,49 @@ We find that when a=b=1 and c=d=4, the model has the highest accuracy of 32.2%, 
 <img src="../../imgs/4_3_3.png" width=600>
 
 
+## 4. Integrate the search to the chop flow, so we can run it from the command line.
+
+I create my own class of <code>NetworkArchitectureSearch</code> inherited from SearchSpaceBase at <code>search.search_space.quantization.network_architecture.py</code>. Within the class, I mainly define four functions:
+
+1) _post_init_setup(self)
+
+I inherit this from <code>base.py</code>.
+
+It primarily determines the computing resource, and initializes some variables, such as masegraph and default network config of a,b,c,d.
+
+2) rebuild_model(self, sampled_config, is_eval_mode: bool = True)
+
+Each time when the configuration updates, we need to rebuild the model with specific sampled_config.
+
+It mainly consists of three steps:
+
+Initialisation:
+<pre>
+mg = MaseGraph(self.model) # only pass the architecture but not the weights!
+mg,_ = init_metadata_analysis_pass(mg, None)
+</pre>
+
+Change the model according to the sampled_config:
+<pre>
+mg, _ = self.redefine_linear_transform_pass(mg, sampled_config)
+mg, _ = self.redefine_relu_pass(mg, sampled_config)
+</pre>
+
+Load the pretrained model with that sampled_config:
+<pre>
+mymodel = load_model(f"mase_output/4_3/model_with_multiplier_{numbers[0]}_{numbers[1]}_{numbers[2]}_{numbers[3]}.ckpt", "pl", mg.model)
+</pre>
+
+Finally, we return the masegraph with special sampled_config.
+
+   
+<pre>
+# importing
+    
+    
+</pre>
+
+
+
+
 
