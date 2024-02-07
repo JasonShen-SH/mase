@@ -143,8 +143,9 @@ Subsequently, inference is performed for each configuration within the search sp
 # Essential Code Segment (Extraneous elements omitted)
 for i, config in enumerate(search_spaces):
     size = model_storage_size(mg.model, weight_bit_width, bias_bit_width, data_bit_width)  # model size after it has been quantized
+    flop = add_flops_bitops_analysis_pass(mg)
     bit_op = bit_wise_op(mg.model, (16,), weight_bit_width, bias_bit_width, data_bit_width, batch_size)
-
+    
     acc_avg, loss_avg = 0, 0;  accs, losses, latencies = [], [], []
 
     for inputs in data_module.train_dataloader():
@@ -507,5 +508,14 @@ for a in multipliers:
         loss_avg = sum(losses) / len(losses)
         recorded_metrics.append({"block2_output":a, "block4_input":b, "block4_output":c, "block6_input":d, "acc(%)":acc_avg*100, "loss":loss_avg})
 </pre>
+
+Then we obtain the result:
+
+<img src="../../imgs/4_3_2.png" width=1000>
+
+We find that when a=b=1 and c=d=4, the model has the highest accuracy of 32.2%, when corresponds to the following model:
+
+<img src="../../imgs/4_3_3.png" width=600>
+
 
 
