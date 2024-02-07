@@ -649,7 +649,31 @@ Finally, we execute the command:
 </pre>
 
 Then we found that the search option with the highest accuracy achieved an accuracy rate of 24.2%.
-<img src="../../imgs/4_4.png" width=800>
+<img src="../../imgs/4_4.png" width=1000>
+
+
+## Optional Task (scaling the search to real networks)
+
+As the methodology and approach are fundamentally similar to the previous question, and considering the substantial volume of code, we have refrained from including specific code snippets here. FUll code are provided in the following links.
+
+We've changed the method VGG is presented, we've changed it into a sequential layers of network, so it would be easy for us to write the network config.
+[cifar10_vgg](https://www.openai.com)
+
+#从以下几个方面去说：
+
+conv2d_transform
+
+bn_transform
+
+pooling_transform
+
+
+search space文件的定义
+
+toml文件的定义
+
+
+
 
 
 
