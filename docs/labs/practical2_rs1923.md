@@ -2,7 +2,8 @@
 
 ## 1. Explore additional metrics that can serve as quality metrics for the search process. 
 
-Overall, we have explored four additional metrics: Latency, Model size, FLOPs, and Bit-wise operations.
+Overall, we have explored four additional metrics: 1)Latency, 2)Model size, 3)FLOPs, and 4)Bit-wise operations.
+
 
 **Latency**: (Unit: ms, we have multiplied by 1000)
 
