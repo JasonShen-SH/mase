@@ -267,7 +267,7 @@ It is evident that the TPE method consistently maintains a relatively high best 
 
 We will adjust the configuration of each linear layer by applying a channel multiplier factor of 2.
 
-Regarding the ReLU activation layers, it is accurate that the nn.ReLU module from PyTorch does not require any parameters for its initialization. Therefore, we'll standardize all ReLU layers to nn.ReLU().
+Regarding the ReLU activation layers, as the nn.ReLU module from PyTorch does not require any parameters for its initialization. Therefore, we'll standardize all ReLU layers to nn.ReLU().
 
 <pre>
 def instantiate_relu(boolean):
@@ -326,6 +326,9 @@ pass_config_relu = {
 }
 </pre>
 
+Then, we can obtain the updated model with its layers' dimensions doubled.
+
+<img src="../../imgs/4_1.png" width=800>
 
 ## 2. Use grid search to search for the best channel multiplier value.
 
