@@ -256,6 +256,7 @@ search_space = [1,2,3,4,5]
 </pre>
 
 **Training Process**: 
+
 Contrary to the approach taken in Lab 3, where pretrained models were loaded, the various architecture modifications proposed for this experiment remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
 
 We set max_epoch=10 and batch_size=512 for the dataloader.
@@ -263,7 +264,8 @@ We set max_epoch=10 and batch_size=512 for the dataloader.
 <pre>
 # Essential Code Segment
 for multiplier in channel_multiplier:
-    # define pass_config_linear & pass_config_relu according to sampled_config
+    # get sampled_config
+    # define pass_config_linear & pass_config_relu 
     mg, _ = redefine_linear_transform_pass(graph=mg, pass_args={"config": pass_config_linear})
     mg, _ = redefine_relu_pass(graph=mg, pass_args={"config": pass_config_relu})
 
@@ -280,6 +282,27 @@ for multiplier in channel_multiplier:
 </pre>
 
 Subsequently, we executed the search procedure. Given the network's simplicity—indicating manageable model size and reasonable latency—we focused exclusively on two key performance metrics: **accuracy (acc) and loss**， for evaluation.
+<pre>
+for multiplier in channel_multiplier:
+    # get sampled_config
+    # define pass_config_linear & pass_config_relu 
+    mg, _ = redefine_linear_transform_pass(graph=mg, pass_args={"config": pass_config_linear})
+    mg, _ = redefine_relu_pass(graph=mg, pass_args={"config": pass_config_relu})
+
+    mymodel = load_model(f"mase_output/4_2/model_with_multiplier_{multiplier}.ckpt", "pl", mg.model) # load pre-trained model
+
+    acc_avg, loss_avg = 0, 0 ; accs, losses = [], []
+    for inputs in data_module.train_dataloader():
+        xs, ys = inputs
+        preds = mymodel(xs)
+        acc = metric(preds, ys)
+        accs.append(acc)
+        loss = torch.nn.functional.cross_entropy(preds, ys)
+        losses.append(loss)
+    
+    acc_avg = sum(accs) / len(accs) ; loss_avg = sum(losses) / len(losses)
+    recorded_accs.append({"acc":acc_avg,"loss":loss_avg})
+</pre>
 
 
 # 3. Search for Optimal Channel Multipliers with Independent Layer Scaling
