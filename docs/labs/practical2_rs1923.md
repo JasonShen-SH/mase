@@ -335,14 +335,14 @@ Then, we can obtain the updated model with its layers' dimensions doubled.
 To ascertain the most effective channel multiplier, we have established a search space designed for selecting the optimal channel multiplier.
 
 <pre>
-search_space = [1,2,3,4,5]
+search_space = [1,2,3,4,5]  # the set where channel multiplier selects its value from
 </pre>
 
 **Training Process**: 
 
-Contrary to the approach taken in Lab 3, where pretrained models were loaded, the various architecture modifications proposed for this experiment remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
+Contrary to the approach taken in Lab3 where pretrained models were loaded, the various architecture modifications proposed for Lab4 remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
 
-We set max_epoch=10 and batch_size=512 for the dataloader.
+We set max_epoch=10 for training and batch_size=512 for the dataloader.
 
 <pre>
 # Essential Code Segment
