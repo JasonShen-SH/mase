@@ -207,10 +207,10 @@ It's important to note that due to the way the search space is defined, we repre
 <pre>
 [search.search_space.seed.seq_blocks_2.config]  # In this case, we choose by "name" to locate the linear module.
 name = ["integer"]
-data_in_width = [16, 8, 8, 4]
-data_in_frac_width = [8, 6, 4, 2]
-weight_width = [16, 8, 8, 4]
-weight_frac_width = [8, 6, 4, 2]
+data_in_width = [8, 8, 4, 16]
+data_in_frac_width = [4, 6, 2, 8]
+weight_width = [8, 8, 4, 16]
+weight_frac_width = [4, 6, 2, 8]
 bias_width = [8]
 bias_frac_width = [4]
 ''''''
@@ -218,6 +218,11 @@ n_trials = 256 # 4*4*4*4
 </pre>
 
 Therefore, within our search space, we have 4×4×4×4=256 search options available. This configuration does not strictly align with a one-to-one correspondence to the previously defined search space requirements. However, through these 256 approaches, we can **comprehensively cover** the entire scope of the previously defined search space.
+
+**IMPORTANT**: 
+
+The rationale behind randomizing the order of our search space (e.g., [8, 8, 4, 16] instead of [16, 8, 8, 4]) stems from our objective to evaluate the sample efficiency of two different samplers in the subsequent analysis. If we were to maintain a sequential order, the brute-force method might very likely encounter the configuration with the highest accuracy on its first iteration. However, this would not accurately reflect its overall sample efficiency. 
+By randomizing the search space, we aim to derive a more general conclusion regarding the samplers' performance in terms of sample efficiency.
 
 Then we execute the command:
 <pre>
@@ -228,8 +233,7 @@ And we get:
 
 <img src="../../imgs/3_3.png" width=1000>
 
-
-The trials with the highest accuracy range from 47% to 48%, which is close to the 51.3% accuracy of the original model, indicating that the model significantly reduces storage space while largely maintaining accuracy.
+The trials with the largest accuracy is 52%, indicating that the quantisation has the capability to significantly reduce the model storage space while largely maintain accuracy.
 
 ## 4. Comparison between brute-force search and TPE based search regarding sample efficiency.
 
@@ -237,7 +241,9 @@ Sample efficiency refers to the capability of identifying optimal (or near-optim
 
 Therefore, in the context of evaluating different samplers, we assess their performance based on the accuracy of the best trial in relation to the number of trials conducted.
 
+<img src="../../imgs/3_4_bruteforce.png" width=1000>
 
+<img src="../../imgs/3_4_tpe.png" width=1000>
 
 # Lab4 
 
