@@ -2,6 +2,8 @@
 
 ## 1. Explore additional metrics that can serve as quality metrics for the search process. 
 
+Overall, we have explored four additional metrics: Latency, Model size, FLOPs, and Bit-wise operations.
+
 **Latency**: (Unit: ms, we have multiplied by 1000)
 
 For each search option, we calculate the latency for each input-batch, then accumulate all latencies to take the average.
@@ -55,11 +57,51 @@ for i, config in enumerate(search_spaces):
 </pre>
 
 
+**FLOPs**: (Unit: number)
+
+For each search option, we compute the FLOPs for linear, batchnorm, and relu module.
+
+We employ the same methodology as outlined in the optional task of Lab2. 
+(Detailed explanations are also available in the code comments)
+
+<pre>
+def calculate_flop_for_linear(module, batch_size):
+    in_features = module.in_features
+    out_features = module.out_features
+    return batch_size*(in_features * out_features)
+def calculate_flop_for_batchnorm1d(module, batch_size):
+    num_features = module.num_features
+    # calculate the mean: num_features * batch_size  [for each element, (batch_size-1)add, 1division]
+    # calculate the variance: (2*num_features+(num_features-1))*batch_size + (batch_size-1)  [for each element:2, for each sample: 2*num_features+(num_features-1)]
+    # calculate the denominator (knowing variance): 2  [add bias & square root]
+    # calculate for each sample xi: 4*num_features  [for each element, 4: 1*minus, 1*division, 1*multiply, 1*add]
+    return num_features * batch_size + (2*num_features+(num_features-1))*batch_size + (batch_size-1) + 2 + batch_size*(4*num_features)
+def calculate_flop_for_relu(module, input_features, batch_size):
+    # per element comparison with 0 (in essence, a minus)
+    input_features = input_features*batch_size
+    return input_features
+def add_flops_bitops_analysis_pass(graph):
+    total_flops = 0
+    for node in graph.fx_graph.nodes:
+        if isinstance(get_node_actual_target(node), torch.nn.modules.Linear):
+            flops = calculate_flop_for_linear(get_node_actual_target(node), batch_size)
+            total_flops += flops
+        elif isinstance(get_node_actual_target(node), torch.nn.modules.BatchNorm1d):
+            flops = calculate_flop_for_batchnorm1d(get_node_actual_target(node), batch_size)
+            total_flops += flops
+    flops = calculate_flop_for_relu(get_node_actual_target(node), 16, batch_size)
+    total_flops += flops
+    flops = calculate_flop_for_relu(get_node_actual_target(node), 5, batch_size)
+    total_flops += flops
+    return total_flops
+</pre>
+
+
 **Bit-wise operations**: (Unit: number)
 
-For each search option, we compute the bitwise operations count for the linear module。
+For each search option, we compute the bitwise operations count for linear module。
 
-We employ the identical methodology as outlined in the optional task of Lab2.
+We employ identical methodology as outlined in the optional task of Lab2.
 
 <pre>
 def bit_wise_op(model, input_res, data_width, weight_width, bias_width, batch_size):
@@ -278,7 +320,7 @@ for multiplier in channel_multiplier:
             loss.backward()  
             optimizer.step() 
 
-    # save model, masegraph and optimizer initialize again
+    # save model, initialize masegraph and optimizer again
 </pre>
 
 Subsequently, we executed the search procedure. Given the network's simplicity—indicating manageable model size and reasonable latency—we focused exclusively on two key performance metrics: **accuracy (acc) and loss**， for evaluation.
