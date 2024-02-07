@@ -173,7 +173,79 @@ And we get:
 
 The trials with the highest accuracy range from 47% to 48%, which is close to the 51.3% accuracy of the original model, indicating that the model significantly reduces storage space while largely maintaining accuracy.
 
-## 4. Comparison between brute-force search and TPE based search.
+## 4. Comparison between brute-force search and TPE based search regarding sample efficiency.
+
+Sample efficiency refers to the capability of identifying optimal (or near-optimal) hyperparameters utilizing the minimal number of trials ("samples").
+
+Therefore, in the context of evaluating different samplers, we assess their performance based on the accuracy of the best trial in relation to the number of trials conducted.
+
+
+
+# Lab4 
+
+## 1. Modify the network to have layers expanded to double sizes.
+
+We will adjust the configuration of each linear layer by applying a channel multiplier factor of 2.
+
+Regarding the ReLU activation layers, it is accurate that the nn.ReLU module from PyTorch does not require any parameters for its initialization. Therefore, we'll standardize all ReLU layers to nn.ReLU().
+
+<pre>
+def instantiate_relu(boolean):
+    return nn.ReLU(inplace=boolean)
+def redefine_relu_pass(graph, pass_args=None):
+    pass_args_copy = copy.deepcopy(pass_args)
+    main_config = pass_args_copy.pop('config')
+    default = main_config.pop('default', None)
+    if default is None:
+        raise ValueError(f"default value must be provided.")
+    i = 0
+    for node in graph.fx_graph.nodes:
+        i += 1
+        # if node name is not matched, it won't be tracked
+        config = main_config.get(node.name, default)['config']
+        name = config.get("name", None)
+        if name is not None:
+            new_module = instantiate_relu(True)
+            parent_name, name = get_parent_name(node.target)
+            setattr(graph.modules[parent_name], name, new_module)
+    return graph, {}
+    
+pass_config_linear = {
+"by": "name",
+"default": {"config": {"name": None}},
+"seq_blocks_2": {
+    "config": {
+        "name": "output_only",
+        "channel_multiplier": 2,
+        }
+"seq_blocks_4": {
+    "config": {
+        "name": "both",
+        "channel_multiplier": 2,
+        }
+    },
+"seq_blocks_6": {
+    "config": {
+        "name": "input_only",
+        "channel_multiplier": 2,
+        }
+    },
+}
+pass_config_relu = {
+"by": "name",
+"default": {"config": {"name": None}},
+"seq_blocks_3": {
+    "config": {
+        "name": "relu",
+        }
+    },
+"seq_blocks_5": {
+    "config": {
+        "name": "relu",
+        }
+    },
+}
+</pre>
 
 
 
