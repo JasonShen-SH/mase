@@ -364,7 +364,9 @@ for multiplier in channel_multiplier:
     # save model, initialize masegraph and optimizer again
 </pre>
 
-Subsequently, we executed the search procedure. Given the network's simplicity—indicating manageable model size and reasonable latency—we focused exclusively on two key performance metrics: **accuracy (acc) and loss**， for evaluation.
+Subsequently, we executed the search.
+
+Given the network's simplicity, indicating manageable model size and reasonable latency, we focused exclusively on two key performance metrics **accuracy and loss** for evaluation.
 <pre>
 for multiplier in channel_multiplier:
     # get sampled_config
