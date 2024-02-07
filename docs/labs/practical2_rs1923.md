@@ -552,8 +552,9 @@ mg, _ = self.redefine_relu_pass(mg, sampled_config)
 <pre>
 mymodel = load_model(f"mase_output/4_3/model_with_multiplier_{numbers[0]}_{numbers[1]}_{numbers[2]}_{numbers[3]}.ckpt", "pl", mg.model)
 </pre>
+We must load the pre-trained models in that proceeding directly to inference with the dataloader on the untrained models would result in evaluations that are meaningless.
 
-Finally, we return the masegraph with special sampled_config.
+Finally, we return the masegraph with specified sampled_config.
 
 3 build_search_space
 
