@@ -245,6 +245,7 @@ Therefore, in the context of evaluating different samplers, we assess their perf
 <pre>
 # The best trial accuracy when n_trial=1 (brute-force sampler)
 <img src="../../imgs/3_4_bruteforce.png" width=1000>
+    
 # The best trial accuracy when n_trial=1 (tpe sampler)
 <img src="../../imgs/3_4_tpe.png" width=1000>
 </pre>
@@ -253,7 +254,7 @@ Therefore,as both sampler only have one trial, we can say that the *tpe* sampler
 
 We could continue and check the best trial accuracy for both samplers from n_trial=1 to 5.
 
-<img src="../../imgs/3_4_compare.png" width=1000>
+<img src="../../imgs/3_4_compare.png" width=600>
 
 
 
