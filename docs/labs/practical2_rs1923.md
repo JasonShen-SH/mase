@@ -511,9 +511,9 @@ for a in multipliers:
 
 Then we obtain the result:
 
-<img src="../../imgs/4_3_2.png" width=1000>
+<img src="../../imgs/4_3_2.png" width=600>
 
-We find that when a=b=1 and c=d=4, the model has the highest accuracy of 32.2%, when corresponds to the following model:
+We find that when a=b=1 and c=d=4, the model has the highest accuracy of 32.2%, which corresponds to the following model:
 
 <img src="../../imgs/4_3_3.png" width=600>
 
