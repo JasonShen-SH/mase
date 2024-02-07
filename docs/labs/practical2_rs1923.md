@@ -250,13 +250,13 @@ Therefore, in the context of evaluating different samplers, we assess their perf
 <img src="../../imgs/3_4_tpe.png" width=1000>
 </pre>
 
-Therefore,as both sampler only have one trial, we can say that the *tpe* sampler has a much higher sample efficiency compared to the *brute-force* sampler.
+Therefore, as both sampler only have one trial, we can see that the *tpe* sampler has a much higher sample efficiency compared to the *brute-force* sampler.
 
-We could continue and check the best trial accuracy for both samplers from n_trial=1 to 5.
+We could continue to check the best trial accuracy for both samplers from n_trial=1 to 5.
 
 <img src="../../imgs/3_4_compare.png" width=600>
 
-
+It is evident that the TPE method consistently maintains a relatively high best trial accuracy. In contrast, the brute-force method exhibits significant fluctuations in accuracy as the data_loader order has been randomized.
 
 
 
