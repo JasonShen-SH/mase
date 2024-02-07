@@ -607,6 +607,15 @@ return config
 
 Note that we also need to define <code>DEFAULT_NETWORK_CONFIG</code>, as well as the previously defined functions for modifying network structure based on sampled_config, including <code>redefine_linear_transform_pass</code> and <code>redefine_relu_pass</code>.
 
+Finally, the appropriate import statements must be implemented.
+<pre>
+# search.search_space.quantization.__init__.py
+from .network_architecture import NetworkArchitectureSearch
+# search.search_space.__init__.py
+from .quantization import NetworkArchitectureSearch
+SEARCH_SPACE_MAP = {"graph/quantize/network_search": NetworkArchitectureSearch,}
+</pre>
+
 
 
 
