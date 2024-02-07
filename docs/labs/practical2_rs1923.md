@@ -248,5 +248,44 @@ pass_config_relu = {
 </pre>
 
 
+## 2. Use grid search to search for the best channel multiplier value.
 
+**IMPORTANT**: Contrary to the approach taken in Lab 3, where pretrained models were loaded, the various architecture modifications proposed for this experiment remain untrained. Therefore, it is imperative to subject these modified networks to a comprehensive training before we perform any search. Otherwise, proceeding directly to inference with the dataloader on these untrained models would result in evaluations that lack substantive value. 
 
+**The training process**
+
+<pre>
+def init_mg():
+    model = JSC_Three_Linear_Layers()
+    mg = MaseGraph(model=model)
+    mg, _ = init_metadata_analysis_pass(mg, None)
+    return mg
+
+channel_multiplier = [1,2,3,4,5]
+recorded_accs = []
+metric = MulticlassAccuracy(num_classes=5)
+max_epoch=10
+batch_size = 512
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+for multiplier in channel_multiplier:
+    mg = init_mg()
+    pass_config_linear["seq_blocks_2"]["config"]["channel_multiplier"] = multiplier
+    pass_config_linear["seq_blocks_4"]["config"]["channel_multiplier"] = multiplier
+    pass_config_linear["seq_blocks_6"]["config"]["channel_multiplier"] = multiplier
+    mg, _ = redefine_linear_transform_pass(graph=mg, pass_args={"config": pass_config_linear})
+    mg, _ = redefine_relu_pass(graph=mg, pass_args={"config": pass_config_relu})
+
+    for epoch in range(max_epoch):
+        for inputs in data_module.train_dataloader():
+            xs, ys = inputs
+            optimizer.zero_grad()
+            preds = mg.model(xs)
+            loss = torch.nn.functional.cross_entropy(preds, ys)  
+            loss.backward()  
+            optimizer.step() 
+
+    torch.save({ 'state_dict': mg.model.state_dict(), 'config': multiplier,}, f'model_with_multiplier_{str(multiplier)}.pth')
+
+    mg = init_mg(model)
+    optimizer = optim.Adam(mg.model.parameters(), lr=0.001)
