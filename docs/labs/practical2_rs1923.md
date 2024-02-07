@@ -616,7 +616,29 @@ from .quantization import NetworkArchitectureSearch
 SEARCH_SPACE_MAP = {"graph/quantize/network_search": NetworkArchitectureSearch,}
 </pre>
 
+In addition to establishing a custom search space, we must also generate a bespoke TOML file.
 
+We need to specify our task, together with the new search space within the file.
+
+<pre>
+# Only essential Code Segment are presented
+model = "jsc-three-linear-layers"
+dataset = "jsc"
+task = "cls"
+''''''
+[search.search_space]
+name = "graph/quantize/network_search"
+[search.search_space.setup]
+by = "name"
+[search.search_space.seed.seq_blocks_2.config]
+channel_multiplier_output = [1, 2, 3, 4, 5]
+[search.search_space.seed.seq_blocks_4.config]
+channel_multiplier_input = [1, 2, 3, 4, 5]
+channel_multiplier_output = [1, 2, 3, 4, 5]
+[search.search_space.seed.seq_blocks_6.config]
+channel_multiplier_input = [1, 2, 3, 4, 5]
+'''''' (search strategy)
+</pre>
 
 
 
