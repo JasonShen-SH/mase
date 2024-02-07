@@ -251,11 +251,13 @@ pass_config_relu = {
 
 To achieve individual scaling of each layer rather than uniform scaling across the network, we assign distinct channel multiplier values to each adjustable channel input/output.
 
-We establish a search space defined by the set [1, 2, 3, 4, 5]. From this set, channel multipliers are selected, allowing for customized scaling of the network's layers.
+We establish a search space defined by the set [1, 2, 3, 4, 5].
+
+From this set, channel multipliers are selected, allowing for customized scaling of the network's layers.
 
 For each point of channel input/output modification, unique multiplier variables are designated—namely, **a, b, c, and d**. These variables individually adjust the scaling factor applied to the corresponding channel dimensions.
 
-# Essential Code Segment (Extraneous elements omitted)
+**Essential Code Segment (Extraneous elements omitted)**
 <pre>
 # within main function
 search_space = [1,2,3,4,5]
