@@ -107,15 +107,14 @@ We've implemented a network with the following architecture:
 The network begins with an input of size 16 and features a residual block after two initial 1D convolutional and ReLU layers, the parallel paths of residual block then converge to a linear layer, and finally produces a final output of size 5 after a sigmoid activation function.
 
 **Parameters**
-
-  '''
+<pre>
   jsc_rs1923 = JSC_rs1923(info)
   total_params = 0
   for param in jsc_rs1923.parameters():
       total_params += param.numel()
   print(f'Total number of JSC_rs1923 parameters: {total_params}')
    # same for jsc_tiny
-   '''
+</pre>
 
 
 And we get the parameters of jsc_rs1923 to be 3285, compared to that of JSC-Tiny (117).
