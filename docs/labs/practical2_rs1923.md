@@ -764,6 +764,17 @@ Ultimately, we execute the following command to initiate the search operation:
 !./ch search --config configs/examples/cifar10_vgg.toml --load ../mase_output/vgg7_classification_cifar10_2024-02-01/software/training_ckpts/best.ckpt
 </pre>
 
+In reality, we should complete the pre-training process for models under every configuration (for instance, training each search option for 10 epochs as we did previously). 
+
+However, due to the number of models with different configurations and GPU resource constraints, we proceed directly to inference, which might result in relatively limited accuracy.
+
+<pre>
+Best trial(s):
+|    |   number | software_metrics                  | hardware_metrics                                | scaled_metrics                              |
+|----+----------+-----------------------------------+-------------------------------------------------+---------------------------------------------|
+|  0 |        0 | {'loss': 2.309, 'accuracy': 0.11} | {'average_bitwidth': 32, 'memory_density': 1.0} | {'accuracy': 0.11, 'average_bitwidth': 6.4} |
+</pre>
+
 
 
 
