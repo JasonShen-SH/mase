@@ -656,21 +656,107 @@ Then we found that the search option with the highest accuracy achieved an accur
 
 As the methodology and approach are fundamentally similar to the previous question, and considering the substantial volume of code, we have refrained from including specific code snippets here. FUll code are provided in the following links.
 
-We have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration.
-[cifar10_vgg](https://www.openai.com)
+We have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration (making it much easier to modify the network architecture).
 
-#从以下几个方面去说：
+The modified version of VGG model will only have <code>self.seq_blocks</code> in the forward function.
+<pre>
+def forward(self, x: torch.Tensor) -> torch.Tensor:
+    return self.seq_blocks(x)
+</pre>
 
-conv2d_transform
+After modifying the model representation, we need to define our search space, which in this instance is [64, 128, 256, 512]. This search space is designated for the output of all convolutional layers, meaning the output channels of all convolutional layers can only be selected from these numbers.
+<pre>
+# part of build_search_space:
+search_space = [64, 128, 256, 512]
+self.choices_flattened = {
+    "seq_blocks_0_channel_output": search_space,
+    "seq_blocks_3_channel_output": search_space,
+    "seq_blocks_7_channel_output": search_space,
+    "seq_blocks_10_channel_output": search_space,
+    "seq_blocks_14_channel_output": search_space,
+    "seq_blocks_17_channel_output": search_space,
+}
+self.choice_lengths_flattened = {k: len(v) for k, v in self.choices_flattened.items()}
+</pre>
 
-bn_transform
+Additionally, we have stipulated that the number of channels must be ensured to be at least **non-decreasing**, meaning the output channel count of a subsequent convolutional layer must not be less than that of its preceding layer. (notice 1)
 
-pooling_transform
+Naturally, the input channel count of each convolutional layer must match the output channel count of the preceding convolutional layer, and the channel count for batch normalization must also correspond with the preceding convolutional layer. (notice 2 & 3)
+
+Lastly, it is imperative to ensure that the first linear layer following the flattening operation aligns with the feature dimension. (notice 4)
+
+We will articulate the aforementioned four points as four separate notices. Below is their code implementation:
+
+<pre>
+# part of flattened_indexes_to_config:
+    
+# notice1: Ensure the number of channels kept at least non-decreasing
+for i in range(len(layer_sequence) - 1):
+    current_layer = layer_sequence[i]
+    next_layer = layer_sequence[i + 1]
+    if config["config"][next_layer]["config"]["channel_output"] < config["config"][current_layer]["config"]["channel_output"]:
+        config["config"][next_layer]["config"]["channel_output"] = config["config"][current_layer]["config"]["channel_output"]
+        
+# notice2: Batchnorm
+for i in range(len(layer_sequence)):
+    current_layer = layer_sequence[i]
+    bn_index = int((layer_sequence[i].split("_",2))[2])+1
+    print("bn_index",bn_index)
+    config["config"][f"seq_blocks_{bn_index}"]["config"]["channel"] = config["config"][current_layer]["config"]["channel_output"]
+        
+# notice3: Ensure the input multiplier of the following block matches the output multiplier of current block
+for i in range(len(layer_sequence) - 1):
+    current_layer = layer_sequence[i]
+    next_layer = layer_sequence[i + 1]
+    config["config"][next_layer]["config"]["channel_input"] = config["config"][current_layer]["config"]["channel_output"]
+
+# notice4: Ensure the first linear layer after flatten matches the feature dimension
+config["config"]["seq_blocks_22"]["config"]["channel_input"] = (config["config"]["seq_blocks_17"]["config"]["channel_output"]) * (4 * 4)    # 4*4 is the feature map size
+</pre>
 
 
-search space的定义，前一层必须小于等于后一层
+Concurrently, we need to introduce new transformations for newly-introduced modules such as conv2d, bn and pooling (i.e., conv2d_transform, bn_transform and pooling_transform modules):
+<pre>
+# Only essential Code Segment are presented
+# for conv2d:
+if name == "output_only" or name == "both":
+    ori_module = graph.modules[node.target]
+    if isinstance(ori_module, nn.Conv2d): # Ensure the node is a Conv2d layer 
+        in_channels = ori_module.in_channels
+        out_channels = ori_module.out_channels
+        if name == "output_only":
+            out_channels = config["channel_output"]
+        elif name == "both":
+            in_channels = config["channel_input"]
+            out_channels = config["channel_output"]      
+        new_module = self.instantiate_conv2d(
+            in_channels, out_channels
+        )
+        parent_name, name = get_parent_name(node.target)
+        setattr(graph.modules[parent_name], name, new_module)
+    
+# for bn:
+if name == "bn":
+    ori_module = graph.modules[node.target]
+    if isinstance(ori_module, nn.BatchNorm2d): # Ensure the node is a BatchNorm2d layer 
+        #num_features = ori_module.num_features
+        if 'channel' in config:
+            num_features = config['channel']
+        new_module = self.instantiate_bn(
+            num_features
+        )
+        parent_name, name = get_parent_name(node.target)
+        setattr(graph.modules[parent_name], name, new_module)
+    
+# for pooling_transform:
+ if name == "maxpool":
+    ori_module = graph.modules[node.target]
+    if isinstance(ori_module, nn.MaxPool2d):
+        new_module = self.instantiate_maxpool()
+        parent_name, name = get_parent_name(node.target)
+        setattr(graph.modules[parent_name], name, new_module)
+</pre>
 
-toml文件的定义
 
 
 
