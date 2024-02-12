@@ -654,9 +654,9 @@ Then we found that the search option with the highest accuracy achieved an accur
 
 ## Optional Task (scaling the search to real networks)
 
-As the methodology and approach are fundamentally similar to the previous question, and considering the substantial volume of code, we have refrained from including specific code snippets here. FUll code are provided in the following links.
+As the methodology and approach are fundamentally similar to the previous question, and considering the substantial volume of code, we have refrained from including specific code snippets here. FUll code are provided here: [Full Code](https://github.com/JasonShen-SH/mase_real/tree/main)
 
-We have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration (making it much easier to modify the network architecture).
+To start with, we have modified the presentation format of the VGG model, transforming it into a sequence of network layers to simplify the process of writing the network configuration (making it much easier to modify the network architecture).
 
 The modified version of VGG model will only have <code>self.seq_blocks</code> in the forward function.
 <pre>
@@ -679,11 +679,11 @@ self.choices_flattened = {
 self.choice_lengths_flattened = {k: len(v) for k, v in self.choices_flattened.items()}
 </pre>
 
-Additionally, we have stipulated that the number of channels must be ensured to be at least **non-decreasing**, meaning the output channel count of a subsequent convolutional layer must not be less than that of its preceding layer. (notice 1)
+(Notice1): Additionally, we have stipulated that the number of channels must be ensured to be at least **non-decreasing**, meaning the output channel count of a subsequent convolutional layer must not be less than that of its preceding layer. 
 
-Naturally, the input channel count of each convolutional layer must match the output channel count of the preceding convolutional layer, and the channel count for batch normalization must also correspond with the preceding convolutional layer. (notice 2 & 3)
+(Notice2&3): Naturally, the input channel count of each convolutional layer must match the output channel count of the preceding convolutional layer, and the channel count for batch normalization must also correspond with the preceding convolutional layer.
 
-Lastly, it is imperative to ensure that the first linear layer following the flattening operation aligns with the feature dimension. (notice 4)
+(Notice4): Lastly, it is imperative to ensure that the first linear layer following the flattening operation aligns with the feature dimension. 
 
 We will articulate the aforementioned four points as four separate notices. Below is their code implementation:
 
@@ -755,6 +755,13 @@ if name == "bn":
         new_module = self.instantiate_maxpool()
         parent_name, name = get_parent_name(node.target)
         setattr(graph.modules[parent_name], name, new_module)
+</pre>
+
+We must also make corresponding modifications to the .toml file, which in this case, I have named <code>cifar10_vgg.toml</code>.
+
+Ultimately, we execute the following command to initiate the search operation:
+<pre>
+!./ch search --config configs/examples/cifar10_vgg.toml --load ../mase_output/vgg7_classification_cifar10_2024-02-01/software/training_ckpts/best.ckpt
 </pre>
 
 
