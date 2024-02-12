@@ -1,29 +1,5 @@
 # Lab1
 
-```yaml
-pass_args = {
-"by": "type",
-"default": {"config": {"name": None}},
-"linear": {  
-        "config": {
-            "name": "integer",
-            # data
-            "data_in_width": 8,
-            "data_in_frac_width": 4,
-            # weight
-            "weight_width": 8,
-            "weight_frac_width": 4,
-            # bias
-            "bias_width": 8,
-            "bias_frac_width": 4,
-        }
-},
-}
-```
-
-
-
-
 ## Varying Parameters
  We have trained the following 12 models with specific parameters (batch size, maximum number of epochs, learning rate, etc.) for training and validation.
  
